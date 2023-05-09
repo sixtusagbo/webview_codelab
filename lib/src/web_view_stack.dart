@@ -30,7 +30,7 @@ class _WebViewStackState extends State<WebViewStack> {
             if (host.contains('youtube.com')) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Bocking Navigation to $host'),
+                  content: Text('Blocking Navigation to $host'),
                 ),
               );
               return NavigationDecision.prevent;
