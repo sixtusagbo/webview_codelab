@@ -4,6 +4,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 enum _MenuOptions {
   navigationDelegate,
   userAgent,
+  javascriptChannel,
 }
 
 class Menu extends StatefulWidget {
@@ -36,6 +37,20 @@ class _MenuState extends State<Menu> {
               );
             }
             break;
+          case _MenuOptions.javascriptChannel:
+            await widget.controller.runJavaScript("""
+let req = new XMLHttpRequest();
+req.open('GET', 'https://api.ipify.org/?format=json');
+req.onload = function () {
+  if (req.status === 200) {
+    SnackBar.postMessage(req.responseText);
+  } else {
+    SnackBar.postMessage('Error: ' + req.status);
+  }
+};
+req.send();
+""");
+            break;
         }
       },
       itemBuilder: (context) => [
@@ -46,6 +61,10 @@ class _MenuState extends State<Menu> {
         const PopupMenuItem<_MenuOptions>(
           value: _MenuOptions.userAgent,
           child: Text('Show User-Agent'),
+        ),
+        const PopupMenuItem<_MenuOptions>(
+          value: _MenuOptions.javascriptChannel,
+          child: Text('Check IP Address'),
         ),
       ],
     );
