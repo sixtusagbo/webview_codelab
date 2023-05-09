@@ -21,10 +21,22 @@ class _WebViewStackState extends State<WebViewStack> {
     super.initState();
     widget.controller.setNavigationDelegate(
       NavigationDelegate(
-        onPageStarted: (url) => setState(() => loadingPercentage = 0),
-        onProgress: (progress) => setState(() => loadingPercentage = progress),
-        onPageFinished: (url) => setState(() => loadingPercentage = 100),
-      ),
+          onPageStarted: (url) => setState(() => loadingPercentage = 0),
+          onProgress: (progress) =>
+              setState(() => loadingPercentage = progress),
+          onPageFinished: (url) => setState(() => loadingPercentage = 100),
+          onNavigationRequest: (navigation) {
+            final host = Uri.parse(navigation.url).host;
+            if (host.contains('youtube.com')) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Bocking Navigation to $host'),
+                ),
+              );
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          }),
     );
   }
 
