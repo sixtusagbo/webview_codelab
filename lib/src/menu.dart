@@ -3,20 +3,38 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 enum _MenuOptions {
   navigationDelegate,
+  userAgent,
 }
 
-class Menu extends StatelessWidget {
+class Menu extends StatefulWidget {
   const Menu({super.key, required this.controller});
 
   final WebViewController controller;
 
+  @override
+  State<Menu> createState() => _MenuState();
+}
+
+class _MenuState extends State<Menu> {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<_MenuOptions>(
       onSelected: (value) async {
         switch (value) {
           case _MenuOptions.navigationDelegate:
-            await controller.loadRequest(Uri.parse('https://youtube.com'));
+            await widget.controller
+                .loadRequest(Uri.parse('https://youtube.com'));
+            break;
+          case _MenuOptions.userAgent:
+            final userAgent = await widget.controller
+                .runJavaScriptReturningResult('navigator.userAgent');
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('$userAgent'),
+                ),
+              );
+            }
             break;
         }
       },
@@ -24,6 +42,10 @@ class Menu extends StatelessWidget {
         const PopupMenuItem<_MenuOptions>(
           value: _MenuOptions.navigationDelegate,
           child: Text('Go to YouTube'),
+        ),
+        const PopupMenuItem<_MenuOptions>(
+          value: _MenuOptions.userAgent,
+          child: Text('Show User-Agent'),
         ),
       ],
     );
