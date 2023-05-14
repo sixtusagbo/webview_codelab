@@ -40,9 +40,10 @@ class _WebViewStackState extends State<WebViewStack> {
             }),
       )
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel('SnackBar', onMessageReceived: (message) {
+      ..addJavaScriptChannel('SnackBar',
+          onMessageReceived: (JavaScriptMessage jsmessage) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("$message")),
+          SnackBar(content: Text(jsmessage.message)),
         );
       });
   }

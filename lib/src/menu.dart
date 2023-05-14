@@ -39,7 +39,9 @@ class _MenuState extends State<Menu> {
             break;
           case _MenuOptions.javascriptChannel:
             await widget.controller.runJavaScript("""
-let req = new XMLHttpRequest();
+if (req === undefined) {
+  let req = new XMLHttpRequest();
+}
 req.open('GET', 'https://api.ipify.org/?format=json');
 req.onload = function () {
   if (req.status === 200) {
