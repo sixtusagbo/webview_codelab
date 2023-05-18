@@ -1,0 +1,16 @@
+body {
+  background-color: #7fffd4;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  display: flex;
+  background: #ccc;
+  padding: 10px;
+}
+
+h1 {
+  font-weight: 700;
+  color: #8a2be2;
+  margin: 20px auto;
+}

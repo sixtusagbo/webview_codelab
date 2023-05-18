@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 enum _MenuOptions {
@@ -10,6 +13,9 @@ enum _MenuOptions {
   addCookie,
   removeCookie,
   setCookie,
+  loadFlutterAsset,
+  loadLocalFile,
+  loadHtmlString,
 }
 
 class Menu extends StatefulWidget {
@@ -23,6 +29,24 @@ class Menu extends StatefulWidget {
 
 class _MenuState extends State<Menu> {
   final cookieManager = WebViewCookieManager();
+  final String kExamplePage = '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Load file or HTML string example</title>
+</head>
+<body>
+
+<h1>Local demo page</h1>
+<p>
+ This is an example page used to demonstrate how to load a local file or HTML
+ string using the <a href="https://pub.dev/packages/webview_flutter">Flutter
+ webview</a> plugin.
+</p>
+
+</body>
+</html>
+''';
 
   Future<void> _onListCookies(WebViewController controller) async {
     final String cookies = await controller
@@ -77,6 +101,30 @@ class _MenuState extends State<Menu> {
     );
   }
 
+  Future<void> _onLoadFlutterAsset(WebViewController controller) async {
+    await controller.loadFlutterAsset("assets/www/index.html");
+  }
+
+  Future<void> _onLoadLocalFile(WebViewController controller) async {
+    final String pathToIndex = await _prepareLocalFile();
+
+    await controller.loadFile(pathToIndex);
+  }
+
+  Future<String> _prepareLocalFile() async {
+    final String tmpDir = (await getTemporaryDirectory()).path;
+    final File indexFile = File("$tmpDir/www/index.html");
+
+    await Directory("$tmpDir/www").create(recursive: true);
+    await indexFile.writeAsString(kExamplePage);
+
+    return indexFile.path;
+  }
+
+  Future<void> _onLoadHtmlString(WebViewController controller) async {
+    await controller.loadHtmlString(kExamplePage);
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<_MenuOptions>(
@@ -128,6 +176,15 @@ req.send();
           case _MenuOptions.setCookie:
             await _onSetCookie(widget.controller);
             break;
+          case _MenuOptions.loadFlutterAsset:
+            await _onLoadFlutterAsset(widget.controller);
+            break;
+          case _MenuOptions.loadHtmlString:
+            await _onLoadHtmlString(widget.controller);
+            break;
+          case _MenuOptions.loadLocalFile:
+            await _onLoadLocalFile(widget.controller);
+            break;
         }
       },
       itemBuilder: (context) => [
@@ -162,6 +219,18 @@ req.send();
         const PopupMenuItem<_MenuOptions>(
           value: _MenuOptions.clearCookies,
           child: Text('Clear Cookies'),
+        ),
+        const PopupMenuItem(
+          value: _MenuOptions.loadHtmlString,
+          child: Text("Load HTML String"),
+        ),
+        const PopupMenuItem(
+          value: _MenuOptions.loadFlutterAsset,
+          child: Text("Load Flutter Asset"),
+        ),
+        const PopupMenuItem(
+          value: _MenuOptions.loadLocalFile,
+          child: Text("Load Local File"),
         ),
       ],
     );
